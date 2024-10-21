@@ -67,7 +67,7 @@ class LinearRegression:
             pred = self.bias
             for j in range(self.n_features):
                 pred += self.weights[j] * X[i][j]
-            y_pred.append(pred)+
+            y_pred.append(pred)
         return y_pred
     
     def predict(self, X):
