@@ -14,57 +14,42 @@ class LinearRegression:
 
     def fit(self, X, y):
         """
-        Fit the linear regression model to the training data.
+        Fit the linear regression model to the training data.                                                                                                  
 
         Parameters:
         X: List of input features where each sublist represents a sample.
         y: List of target values.
         """
-        # Number of training examples (rows) and features (columns)
+        # Number of training examples and features
         self.n_samples = len(X)
         self.n_features = len(X[0])
         
-        # Initialize weights (coefficients (m)) and bias(b) with zeros
+        # Initialize weights (m) and bias (b)
         self.weights = [0] * self.n_features
         self.bias = 0
 
         # Gradient Descent Algorithm
         for _ in range(self.iterations):
-            # Calculate y based on current weights and bias
-            y_predicted = self._predict(X)
-
-            # Initialize gradients to store the sum of partial derivatives for each parameter
-            dw = [0] * self.n_features  # Gradient of weights
-            db = 0                       # Gradient of bias
-
-            # Compute gradients
-            # Loop through each sample to calculate the error and accumulate the gradients.
-            for i in range(self.n_samples):
-                #  (y_hat - y)
-                error = y_predicted[i] - y[i]
-                
-                # dw[j] = Σ (y_hat[i] - y[i]) * x[i][j]
-                for j in range(self.n_features):
-                    # partial derivative of the loss function with respect to weight w_j.
-                    dw[j] += error * X[i][j]
-                
-                # db accumulates the error for all samples, as bias affects all predictions equally.
-                # db = Σ (y_hat[i] - y[i])
-                db += error
-
-            # Update weights and bias with averaged gradients
-            for j in range(self.n_features):
-                # calculate the average gradient for weight w_j.
-                dw[j] /= self.n_samples
-
-                # w_j = w_j - learning_rate * (average gradient of w_j)  
-                self.weights[j] -= self.learning_rate * dw[j]
+            y_predicted = self._predict(X)  # Predicted values with current weights and bias
             
-            # calculate the average gradient for bias
-            db /= self.n_samples
+            dw = [0] * self.n_features  # Sum of gradients for weights
+            db = 0  # Sum of gradients for bias
 
-            # bias = bias - learning_rate * (average gradient of bias)
-            self.bias -= self.learning_rate * db
+            # Compute gradients for each sample
+            for i in range(self.n_samples):
+                error = y_predicted[i] - y[i]  # (y_hat - y)
+                
+                for j in range(self.n_features):
+                    dw[j] += error * X[i][j]  # Σ (y_hat[i] - y[i]) * x[i][j]
+                    
+                db += error  # Σ (y_hat[i] - y[i])
+
+            # Update weights and bias using average gradients
+            for i in range(self.n_features):
+                self.weights[i] -= self.learning_rate * (dw[i] / self.n_samples)
+
+            self.bias -= self.learning_rate * (db / self.n_samples)
+
 
 
     def _predict(self, X):
@@ -82,7 +67,7 @@ class LinearRegression:
             pred = self.bias
             for j in range(self.n_features):
                 pred += self.weights[j] * X[i][j]
-            y_pred.append(pred)
+            y_pred.append(pred)+
         return y_pred
     
     def predict(self, X):
