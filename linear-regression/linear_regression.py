@@ -31,7 +31,14 @@ class LinearRegression:
         # Gradient Descent Algorithm
         for _ in range(self.iterations):
             y_predicted = self._predict(X)  # Predicted values with current weights and bias
-            
+
+            # Alternate: Numpy Implementation
+            # dw = (1/n_samples) * np.dot(X.T, (y_predicted-y))
+            # db = (1/n_samples) * np.sum(y_predicted-y)
+            # self.weights = self.weights - self.lr * dw
+            # self.bias = self.bias - self.lr * db
+
+            # Python Implementation
             dw = [0] * self.n_features  # Sum of gradients for weights
             db = 0  # Sum of gradients for bias
 
@@ -63,6 +70,10 @@ class LinearRegression:
         List of predicted values.
         """
         y_pred = []
+
+        # Alternate: Numpy Implementation
+        # y_pred = np.dot(X, self.weights) + self.bias
+
         for i in range(self.n_samples):
             pred = self.bias
             for j in range(self.n_features):
