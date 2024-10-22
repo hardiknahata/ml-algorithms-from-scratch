@@ -7,7 +7,8 @@ This repo covers a wide range of **supervised** and **unsupervised** machine lea
 
 - **Linear Regression**
 - **K Nearest Neighbours**:
-- *More Coming soon*
+- **Logistic Regression**
+- **Decision Trees**
 
 ## 📚 Learning Goals
 This repo is designed to:
