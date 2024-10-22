@@ -1,0 +1,5 @@
+# file types
+*.pyc
+
+# directories
+__pycache__
