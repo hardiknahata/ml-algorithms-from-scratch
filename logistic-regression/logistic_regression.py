@@ -71,10 +71,10 @@ class LogisticRegression:
         # Gradient descent
         for _ in range(self.n_iters):
             # Linear combination of inputs: z = Xw + b
-            linear_pred = np.dot(X, self.weights) + self.bias
+            z = np.dot(X, self.weights) + self.bias
             
             # Apply the sigmoid function: y_hat = 1 / (1 + e^(-z))
-            y_pred = self.sigmoid(linear_pred)
+            y_pred = self.sigmoid(z)
             
             # Compute the gradients for weights and bias
             # Gradient of the loss w.r.t. weights: dw = (1/n) * X.T * (y_pred - y)
