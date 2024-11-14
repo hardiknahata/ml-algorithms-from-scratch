@@ -1,4 +1,18 @@
 class LinearRegression:
+    '''
+    Algorithm:
+    1.	Initialize: Set learning rate, iterations, weights to zero, and bias to zero.
+
+    2.	Train with Gradient Descent (fit method):
+        For each iteration:
+        •	Predict values using current weights and bias.
+        •	Compute Gradients: Calculate errors for each sample, update weight and bias gradients based on these errors.
+        •	Update Weights and Bias: Adjust weights and bias using gradients scaled by the learning rate.
+
+    3.	Predict (predict method): Compute predictions by applying learned weights and bias to input features.
+
+    The model iteratively adjusts weights and bias to minimize prediction error and improve accuracy.    
+    '''
     def __init__(self, learning_rate=0.01, iterations=1000):
         """
         Initialize the Linear Regression model with a given learning rate and number of iterations.
@@ -21,8 +35,7 @@ class LinearRegression:
         y: List of target values.
         """
         # Number of training examples and features
-        self.n_samples = len(X)
-        self.n_features = len(X[0])
+        self.n_samples, self.n_features = X.shape
         
         # Initialize weights (m) and bias (b)
         self.weights = [0] * self.n_features
@@ -45,12 +58,11 @@ class LinearRegression:
             # Compute gradients for each sample
             for i in range(self.n_samples):
                 error = y_predicted[i] - y[i]  # (y_hat - y)
-                
+                db += error  # Σ (y_hat[i] - y[i])
                 for j in range(self.n_features):
                     dw[j] += error * X[i][j]  # Σ (y_hat[i] - y[i]) * x[i][j]
                     
-                db += error  # Σ (y_hat[i] - y[i])
-
+            
             # Update weights and bias using average gradients
             for i in range(self.n_features):
                 self.weights[i] -= self.learning_rate * (dw[i] / self.n_samples)
