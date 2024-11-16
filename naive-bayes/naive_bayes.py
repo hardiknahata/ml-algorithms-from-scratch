@@ -1,105 +1,87 @@
 import numpy as np
+from collections import defaultdict
 
 class NaiveBayes:
-    """
-    A Naive Bayes classifier using the Gaussian distribution for continuous features.
-    The classifier assumes that the features are normally distributed within each class.
-    """
+    def __init__(self, alpha=1.0):
+        """
+        Initialize the Generic Naive Bayes classifier.
+        
+        Parameters:
+            alpha (float): Laplace smoothing parameter to handle zero probabilities.
+        """
+        self.alpha = alpha  # Laplace smoothing parameter
+        self.class_priors = {}  # Stores the prior probabilities for each class
+        self.feature_probs = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))  
+        # Format: {class: {feature_index: {feature_value: probability}}}
 
     def fit(self, X, y):
         """
-        Fit the Naive Bayes model according to the given training data.
-
+        Train the Naive Bayes classifier.
+        
         Parameters:
-        X : np.ndarray, shape (n_samples, n_features)
-            Training data with n_samples as the number of samples and n_features as the number of features.
-        y : np.ndarray, shape (n_samples,)
-            Target values (class labels) corresponding to the training data.
+            X (list of lists): Training dataset where each sample is a list of categorical features.
+            y (list): Target labels corresponding to each sample in X.
         """
-        # Get the number of samples and features
-        n_samples, n_features = X.shape
+        # Total number of samples
+        total_samples = len(y)
 
-        # Get the unique class labels and number of classes
-        self._classes = np.unique(y)
-        n_classes = len(self._classes)
+        # Get unique class labels
+        classes = np.unique(y)
 
-        # Initialize mean, variance, and priors for each class
-        self._mean = np.zeros((n_classes, n_features), dtype=np.float64)  # Mean for each class and feature
-        self._var = np.zeros((n_classes, n_features), dtype=np.float64)   # Variance for each class and feature
-        self._priors = np.zeros(n_classes, dtype=np.float64)              # Prior probability for each class
+        # Step 1: Calculate prior probabilities P(y) for each class
+        for c in classes:
+            self.class_priors[c] = np.sum(y == c) / total_samples
 
-        # Calculate mean, variance, and prior probability for each class
-        for idx, c in enumerate(self._classes):
-            X_c = X[y == c]  # Select all samples belonging to class c
-            self._mean[idx, :] = X_c.mean(axis=0)  # Mean for each feature in class c
-            self._var[idx, :] = X_c.var(axis=0)    # Variance for each feature in class c
-            self._priors[idx] = X_c.shape[0] / float(n_samples)  # Prior = (samples in class c) / (total samples)
+        # Step 2: Calculate conditional probabilities P(feature_value | class) for each feature
+        for c in classes:
+            # Filter samples belonging to class `c`
+            class_samples = [X[i] for i in range(len(y)) if y[i] == c]
+
+            # Calculate probabilities for each feature index and value
+            feature_counts = defaultdict(lambda: defaultdict(int))  # Count feature values for this class
+            total_count = len(class_samples)  # Total number of samples for class `c`
+
+            for sample in class_samples:
+                for feature_idx, feature_value in enumerate(sample):
+                    feature_counts[feature_idx][feature_value] += 1
+
+            # Calculate probabilities with Laplace smoothing
+            for feature_idx, value_counts in feature_counts.items():
+                vocab_size = len(value_counts)  # Number of unique values for this feature
+                for feature_value, count in value_counts.items():
+                    self.feature_probs[c][feature_idx][feature_value] = (
+                        count + self.alpha
+                    ) / (total_count + self.alpha * vocab_size)
 
     def predict(self, X):
         """
-        Perform classification on an array of test data.
-
-        Parameters:
-        X : np.ndarray, shape (n_samples, n_features)
-            Test data.
-
-        Returns:
-        y_pred : np.ndarray, shape (n_samples,)
-            Predicted class labels for the test data.
-        """
-        # Predict class for each sample in X
-        y_pred = [self._predict(x) for x in X]
-        return np.array(y_pred)
-    
-    def _predict(self, x):
-        """
-        Predict the class label for a single sample x based on the posterior probabilities.
-
-        Parameters:
-        x : np.ndarray, shape (n_features,)
-            A single sample to classify.
-
-        Returns:
-        class_label : int or str
-            The predicted class label.
-        """
-        posteriors = []
-
-        # Calculate the posterior probability for each class
-        for idx, c in enumerate(self._classes):
-            prior = np.log(self._priors[idx])  # Prior probability (log(P(class)))
-            posterior = np.sum(np.log(self._pdf(idx, x)))  # Sum of log-likelihoods of each feature given the class
-            posterior = posterior + prior  # Add log(prior) to get log-posterior
-            posteriors.append(posterior)
+        Predict the class labels for a given dataset.
         
-        # Return the class with the highest posterior probability
-        return self._classes[np.argmax(posteriors)]
-    
-    def _pdf(self, class_idx, x):
-        """
-        Calculate the probability density function (PDF) of a Gaussian distribution for a given class and sample.
-
         Parameters:
-        class_idx : int
-            The index of the class for which the PDF is calculated.
-        x : np.ndarray, shape (n_features,)
-            The sample for which the PDF is calculated.
-
+            X (list of lists): Dataset for which to predict class labels, where each sample is a list of features.
+        
         Returns:
-        pdf_values : np.ndarray, shape (n_features,)
-            The PDF values for each feature in the sample.
+            List of predicted class labels.
         """
-        mean = self._mean[class_idx]  # Mean of the features for the given class
-        var = self._var[class_idx]    # Variance of the features for the given class
+        predictions = []  # Store predictions for each input sample
 
-        # Gaussian probability density function:
-        # PDF(x) = (1 / sqrt(2 * pi * var)) * exp(-(x - mean)^2 / (2 * var))
+        for sample in X:
+            class_scores = {}  # Store posterior scores for each class
 
-        # The numerator represents the exponential part of the Gaussian formula.
-        numerator = np.exp(-((x - mean) ** 2) / (2 * var))
+            for c in self.class_priors.keys():
+                # Start with the log-prior probability log(P(y))
+                class_scores[c] = np.log(self.class_priors[c])
 
-        # The denominator represents the normalization factor.
-        denominator = np.sqrt(2 * np.pi * var)
+                # Add log-likelihoods log(P(feature_value | class)) for each feature in the sample
+                for feature_idx, feature_value in enumerate(sample):
+                    if feature_value in self.feature_probs[c][feature_idx]:
+                        class_scores[c] += np.log(self.feature_probs[c][feature_idx][feature_value])
+                    else:
+                        # Apply Laplace smoothing for unseen feature values
+                        vocab_size = len(self.feature_probs[c][feature_idx])
+                        class_scores[c] += np.log(self.alpha / (self.alpha * vocab_size))
 
-        # Return the probability density for each feature
-        return numerator / denominator
+            # Select the class with the highest posterior probability
+            predictions.append(max(class_scores, key=class_scores.get))
+
+        return predictions
