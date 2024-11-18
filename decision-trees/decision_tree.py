@@ -168,8 +168,11 @@ class DecisionTree:
         Parameters:
         - y: Target labels
         """
-        hist = np.bincount(y)  # Histogram of class counts
-        probs = hist / len(y)  # Probabilities of each class
+        # Find class counts
+        counts = Counter(y)
+        # Calculate probabilities of each class
+        probs = np.array(list(counts.values())) / len(y)
+
         entropy = -np.sum([p * np.log(p) for p in probs if p > 0])  # Calculate entropy
         return entropy
 
