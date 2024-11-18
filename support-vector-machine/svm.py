@@ -7,14 +7,14 @@ class SVM:
         
         Parameters:
             learning_rate (float): Step size for gradient descent.
-            lambda_param (float): Regularization parameter.
-            n_iters (int): Number of iterations for training.
+            lambda_param (float): Regularization parameter (controls the trade-off between margin size and misclassification).
+            n_iters (int): Number of iterations for optimization.
         """
-        self.learning_rate = learning_rate
-        self.lambda_param = lambda_param
-        self.n_iters = n_iters
-        self.w = None  # Weights
-        self.b = None  # Bias
+        self.learning_rate = learning_rate  # Learning rate for weight and bias updates
+        self.lambda_param = lambda_param  # Regularization strength
+        self.n_iters = n_iters  # Number of training iterations
+        self.w = None  # Weight vector (to be learned)
+        self.b = None  # Bias term (to be learned)
 
     def fit(self, X, y):
         """
@@ -22,43 +22,50 @@ class SVM:
         
         Parameters:
             X (numpy.ndarray): Training data of shape (n_samples, n_features).
-            y (numpy.ndarray): Target labels of shape (n_samples,).
+            y (numpy.ndarray): Target labels of shape (n_samples,). Labels must be binary (0 or 1).
         """
-        n_samples, n_features = X.shape
-        
-        # Initialize weights and bias
+        n_samples, n_features = X.shape  # Number of samples and features
+
+        # Initialize weights and bias to zero
         self.w = np.zeros(n_features)
         self.b = 0
-        
-        # Convert labels to +1 or -1 (necessary for hinge loss)
+
+        # Convert labels to +1 or -1 for hinge loss calculations
         y_ = np.where(y <= 0, -1, 1)
-        
-        # Gradient descent optimization
+
+        # Perform gradient descent optimization for n_iters iterations
         for _ in range(self.n_iters):
             for idx, x_i in enumerate(X):
-                condition = y_[idx] * (np.dot(x_i, self.w) - self.b) >= 1
+                # Decision boundary condition:
+                # If y_i (w · x_i + b) >= 1, the point is correctly classified with sufficient margin.
+                condition = y_[idx] * (np.dot(x_i, self.w) + self.b) >= 1
+
                 if condition:
-                    # If condition is met, we do not apply the penalty term
+                    # Correctly classified: Apply only regularization gradient
                     dw = self.lambda_param * self.w
-                    db = 0
+                    db = 0  # Bias gradient is zero for correct classifications
                 else:
-                    # Misclassified point; we apply hinge loss gradient
+                    # Misclassified or within the margin:
                     dw = self.lambda_param * self.w - y_[idx] * x_i
                     db = -y_[idx]
-                
-                # Update weights and bias
+
+                # Update weights and bias using gradient descent
                 self.w -= self.learning_rate * dw
                 self.b -= self.learning_rate * db
 
+
     def predict(self, X):
         """
-        Predict the labels for given data X.
+        Predict the class labels for the given dataset X.
         
         Parameters:
             X (numpy.ndarray): Data to predict of shape (n_samples, n_features).
         
         Returns:
-            numpy.ndarray: Predicted labels of shape (n_samples,).
+            numpy.ndarray: Predicted class labels of shape (n_samples,).
         """
-        linear_output = np.dot(X, self.w) - self.b
+        # Compute the linear decision boundary: w · x + b
+        linear_output = np.dot(X, self.w) + self.b
+
+        # Return the predicted class labels: +1 or -1
         return np.sign(linear_output)
