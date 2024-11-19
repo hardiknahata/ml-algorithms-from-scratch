@@ -27,9 +27,17 @@ class KMeans:
         Returns:
             numpy.ndarray: Cluster assignments for each point with shape (n_samples,).
         """
-        # Calculate distances between each point and each centroid
-        distances = np.linalg.norm(X[:, np.newaxis] - self.centroids, axis=2)
-        # Assign each point to the closest centroid
+
+        # Add a new axis to X for broadcasting
+        X_expanded = X[:, np.newaxis]  # Shape: (n_samples, 1, n_features)
+
+        # Subtract centroids from each point
+        differences = X_expanded - self.centroids  # Shape: (n_samples, n_centroids, n_features)
+
+        # Compute Euclidean distances
+        distances = np.linalg.norm(differences, axis=2)  # Shape: (n_samples, n_centroids)
+
+        # Assign points to the nearest centroid
         return np.argmin(distances, axis=1)
 
     def _update_centroids(self, X):
@@ -58,8 +66,9 @@ class KMeans:
         Returns:
             self: Fitted KMeans instance.
         """
+        n_samples, n_features = X.shape
         # Step 1: Initialize centroids
-        indices = np.random.choice(X.shape[0], size=self.n_clusters, replace=False)
+        indices = np.random.choice(n_samples, size=self.n_clusters, replace=False)
         self.centroids = X[indices]
         
         for i in range(self.max_iters):
