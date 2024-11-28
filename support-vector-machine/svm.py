@@ -35,23 +35,19 @@ class SVM:
 
         # Perform gradient descent optimization for n_iters iterations
         for _ in range(self.n_iters):
-            for idx, x_i in enumerate(X):
-                # Decision boundary condition:
-                # If y_i (w · x_i + b) >= 1, the point is correctly classified with sufficient margin.
-                condition = y_[idx] * (np.dot(x_i, self.w) + self.b) >= 1
+            # Compute the margin for all samples in parallel
+            margins = y_ * (np.dot(X, self.w) + self.b)
 
-                if condition:
-                    # Correctly classified: Apply only regularization gradient
-                    dw = self.lambda_param * self.w
-                    db = 0  # Bias gradient is zero for correct classifications
-                else:
-                    # Misclassified or within the margin:
-                    dw = self.lambda_param * self.w - y_[idx] * x_i
-                    db = -y_[idx]
+            # Identify misclassified samples (margin < 1)
+            misclassified = margins < 1  # Boolean mask for misclassified samples
 
-                # Update weights and bias using gradient descent
-                self.w -= self.learning_rate * dw
-                self.b -= self.learning_rate * db
+            # Gradient computation (vectorized)
+            dw = self.lambda_param * self.w - np.dot(X.T, y_ * misclassified)
+            db = -np.sum(y_ * misclassified)
+
+            # Update weights and bias
+            self.w -= self.learning_rate * dw
+            self.b -= self.learning_rate * db
 
 
     def predict(self, X):

@@ -3,7 +3,7 @@ import numpy as np
 
 class LogisticRegression:
     """
-    A simple implementation of Logistic Regression from scratch.
+    A simple implementation of Logistic Regression using scratch.
     
     Attributes:
     -----------

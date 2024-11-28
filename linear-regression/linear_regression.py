@@ -1,5 +1,9 @@
+import numpy as np
+
 class LinearRegression:
-    '''
+    """
+    Linear Regression using Gradient Descent (NumPy Implementation).
+
     Algorithm:
     1.	Initialize: Set learning rate, iterations, weights to zero, and bias to zero.
 
@@ -11,11 +15,11 @@ class LinearRegression:
 
     3.	Predict (predict method): Compute predictions by applying learned weights and bias to input features.
 
-    The model iteratively adjusts weights and bias to minimize prediction error and improve accuracy.    
-    '''
+    The model iteratively adjusts weights and bias to minimize prediction error and improve accuracy.      
+    """
     def __init__(self, learning_rate=0.01, iterations=1000):
         """
-        Initialize the Linear Regression model with a given learning rate and number of iterations.
+        Initialize the Linear Regression model.
 
         Parameters:
         learning_rate: Step size for gradient descent optimization.
@@ -23,72 +27,43 @@ class LinearRegression:
         """
         self.learning_rate = learning_rate
         self.iterations = iterations
-        self.weights = []
+        self.weights = None
         self.bias = 0
 
     def fit(self, X, y):
         """
-        Fit the linear regression model to the training data.                                                                                                  
+        Fit the linear regression model to the training data.
 
         Parameters:
-        X: List of input features where each sublist represents a sample.
-        y: List of target values.
+        X: NumPy array of shape (n_samples, n_features) representing input features.
+        y: NumPy array of shape (n_samples,) representing target values.
         """
-        # Number of training examples and features
         self.n_samples, self.n_features = X.shape
         
-        # Initialize weights (m) and bias (b)
-        self.weights = [0] * self.n_features
+        # Initialize weights and bias
+        self.weights = np.zeros(self.n_features)
         self.bias = 0
 
         # Gradient Descent Algorithm
         for _ in range(self.iterations):
-            y_predicted = self._predict(X)  # Predicted values with current weights and bias
+            y_predicted = self.predict(X)  # Predicted values with current weights and bias
 
-            dw = [0] * self.n_features  # Sum of gradients for weights
-            db = 0  # Sum of gradients for bias
+            # Compute gradients
+            dw = (1 / self.n_samples) * np.dot(X.T, (y_predicted - y))  # Gradient of weights
+            db = (1 / self.n_samples) * np.sum(y_predicted - y)        # Gradient of bias
 
-            # Compute gradients for each sample
-            for i in range(self.n_samples):
-                error = y_predicted[i] - y[i]  # (y_hat - y)
-                db += error  # Σ (y_hat[i] - y[i])
-                for j in range(self.n_features):
-                    dw[j] += error * X[i][j]  # Σ (y_hat[i] - y[i]) * x[i][j]
-                    
-            
-            # Update weights and bias using average gradients
-            for i in range(self.n_features):
-                self.weights[i] -= self.learning_rate * (dw[i] / self.n_samples)
+            # Update weights and bias
+            self.weights -= self.learning_rate * dw
+            self.bias -= self.learning_rate * db
 
-            self.bias -= self.learning_rate * (db / self.n_samples)
-
-    def _predict(self, X):
-        """
-        Compute the predicted values based on the current weights and bias.
-
-        Parameters:
-        X: List of input features where each sublist represents a sample.
-
-        Returns:
-        List of predicted values.
-        """
-        y_pred = []
-
-        for i in range(self.n_samples):
-            pred = self.bias
-            for j in range(self.n_features):
-                pred += self.weights[j] * X[i][j]
-            y_pred.append(pred)
-        return y_pred
-    
     def predict(self, X):
         """
         Predict target values for the given input features using the trained model.
 
         Parameters:
-        X: List of input features where each sublist represents a sample.
+        X: NumPy array of shape (n_samples, n_features) representing input features.
 
         Returns:
-        List of predicted target values.
+        NumPy array of shape (n_samples,) representing predicted target values.
         """
-        return self._predict(X)
+        return np.dot(X, self.weights) + self.bias

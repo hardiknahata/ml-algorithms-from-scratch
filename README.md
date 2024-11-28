@@ -1,6 +1,6 @@
 # 🚀 Machine Learning Algorithms from Scratch
 
-Welcome to my repository where I code **Machine Learning Algorithms** from scratch using only **Python** — no external libraries are used. This project aims to deeply understand how various ML algorithms work under the hood by breaking them down into their core implementations.
+Welcome to my repository where I code **Machine Learning Algorithms** from scratch using only **Python** and **Numpy** — no other external libraries are used. This project aims to deeply understand how various ML algorithms work under the hood by breaking them down into their core implementations.
 
 ## 🛠️ What's Inside
 This repo covers a wide range of **supervised** and **unsupervised** machine learning algorithms, deep learning concepts and is updated frequently.
