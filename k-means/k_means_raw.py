@@ -10,9 +10,7 @@ class KMeans:
         self.cluster_assignments = None
 
     def _assign_clusters(self, X):
-        X_expanded = X[:, np.newaxis]
-        differences = X_expanded - self.centroids
-        distances = np.linalg.norm(differences, axis=2)
+        distances = np.linalg.norm(X[:, None] - self.centroids, axis=2)
         return np.argmin(distances, axis=1)
 
     def _update_centroids(self, X):
@@ -25,20 +23,30 @@ class KMeans:
 
     def fit(self, X):
         n_samples, n_features = X.shape
-        indices = np.random.choice(n_samples, size=self.n_clusters, replace=False)
-        self.centroids = X[indices]
+        # Step 1: Initialize centroids
+        self.centroids = X[np.random.choice(n_samples, self.n_clusters, replace=False)]
+        
         for i in range(self.max_iters):
+            # Step 2: Assign clusters based on current centroids
             self.cluster_assignments = self._assign_clusters(X)
+            
+            # Store the old centroids for comparison
             old_centroids = self.centroids.copy()
+            
+            # Step 3: Update centroids based on current cluster assignments
             self._update_centroids(X)
+            
+            # Step 4: Check for convergence
             if np.all(np.abs(self.centroids - old_centroids) < self.tolerance):
+                print(f"Convergence reached after {i+1} iterations.")
                 break
-        return self
 
     def predict(self, X):
         return self._assign_clusters(X)
 
     def plot_clusters(self, X):
+        if self.cluster_assignments is None or self.centroids is None:
+            raise ValueError("Model must be fit before plotting.")
         plt.scatter(X[:, 0], X[:, 1], c=self.cluster_assignments, cmap="viridis", marker="o", edgecolor="k")
         plt.scatter(self.centroids[:, 0], self.centroids[:, 1], color="red", marker="X", s=100, label="Centroids")
         plt.legend()

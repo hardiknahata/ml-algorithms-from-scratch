@@ -27,17 +27,8 @@ class KMeans:
         Returns:
             numpy.ndarray: Cluster assignments for each point with shape (n_samples,).
         """
-
-        # Add a new axis to X for broadcasting
-        X_expanded = X[:, np.newaxis]  # Shape: (n_samples, 1, n_features)
-
-        # Subtract centroids from each point
-        differences = X_expanded - self.centroids  # Shape: (n_samples, n_centroids, n_features)
-
-        # Compute Euclidean distances
-        distances = np.linalg.norm(differences, axis=2)  # Shape: (n_samples, n_centroids)
-
-        # Assign points to the nearest centroid
+        # Compute distances between all points and centroids in a vectorized manner
+        distances = np.linalg.norm(X[:, None] - self.centroids, axis=2)
         return np.argmin(distances, axis=1)
 
     def _update_centroids(self, X):
@@ -68,8 +59,7 @@ class KMeans:
         """
         n_samples, n_features = X.shape
         # Step 1: Initialize centroids
-        indices = np.random.choice(n_samples, size=self.n_clusters, replace=False)
-        self.centroids = X[indices]
+        self.centroids = X[np.random.choice(n_samples, self.n_clusters, replace=False)]
         
         for i in range(self.max_iters):
             # Step 2: Assign clusters based on current centroids
@@ -107,6 +97,8 @@ class KMeans:
         Parameters:
             X (numpy.ndarray): The dataset with shape (n_samples, n_features).
         """
+        if self.cluster_assignments is None or self.centroids is None:
+            raise ValueError("Model must be fit before plotting.")
         plt.scatter(X[:, 0], X[:, 1], c=self.cluster_assignments, cmap="viridis", marker="o", edgecolor="k")
         plt.scatter(self.centroids[:, 0], self.centroids[:, 1], color="red", marker="X", s=100, label="Centroids")
         plt.legend()
