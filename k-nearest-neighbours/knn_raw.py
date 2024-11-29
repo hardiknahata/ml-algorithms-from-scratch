@@ -9,9 +9,7 @@ class KNN:
         self.y_train = None
 
     def _get_euclidean_distance(self, x1, x2):
-        # square rout of sum of squared differences
-        sum_squared_distances = [(a - b) ** 2 for a, b in zip(x1,x2)]
-        distance = sum(sum_squared_distances)**0.5
+        distance = np.linalg.norm(x1 - x2)
         return distance
     
     def fit(self, X, y):

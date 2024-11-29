@@ -38,7 +38,7 @@ class KNN:
     
     def _get_euclidean_distance(self, x1, x2):
         """
-        Calculates the Euclidean distance between two data points.
+        Calculates the Euclidean distance between two data points using NumPy.
         
         Parameters:
         -----------
@@ -50,20 +50,8 @@ class KNN:
         distance : float
             The Euclidean distance between x1 and x2.
         """
-        # Euclidean distance formula: sqrt(sum((x1 - x2)^2))
-
-        # Compute the sum of squared differences between corresponding elements of x1 and x2
-        squared_differences = [(a - b) ** 2 for a, b in zip(x1, x2)]
-        
-        # Sum up the squared differences
-        sum_squared_differences = sum(squared_differences)
-        
-        # Return the square root of the sum (Euclidean distance)
-        distance = sum_squared_differences ** 0.5
-        
-        ## Alternate: numpy implementation
-        # distance = np.sqrt(np.sum((x1 - x2) ** 2))
-        
+        # Directly compute the Euclidean distance using NumPy operations
+        distance = np.linalg.norm(x1 - x2)
         return distance
     
     def _predict(self, x):
