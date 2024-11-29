@@ -84,9 +84,7 @@ class KNN:
         distances = [self._get_euclidean_distance(x, x_train) for x_train in self.X_train]
 
         # Get the indices of the k nearest neighbors
-        k_indices = sorted(range(len(distances)), key=lambda i: distances[i])[:self.k]
-        # Alternate: numpy implementation
-        # k_indices = np.argsort(distances)[:self.k] 
+        k_indices = np.argsort(distances)[:self.k] 
         
         # Extract the labels of the k nearest neighbors
         k_nearest_labels = [self.y_train[i] for i in k_indices]
