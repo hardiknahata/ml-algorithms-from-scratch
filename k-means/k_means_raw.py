@@ -14,12 +14,18 @@ class KMeans:
         return np.argmin(distances, axis=1)
 
     def _update_centroids(self, X):
-        new_centroids = np.zeros((self.n_clusters, X.shape[1]))
+        new_centroids = []
         for i in range(self.n_clusters):
             points_in_cluster = X[self.cluster_assignments == i]
-            if len(points_in_cluster) > 0:
-                new_centroids[i] = np.mean(points_in_cluster, axis=0)
-        self.centroids = new_centroids
+            
+            if len(points_in_cluster) > 0:  # If the cluster has points
+                new_centroid = points_in_cluster.mean(axis=0)
+            else:  # If the cluster is empty
+                new_centroid = self.centroids[i]  # Keep the old centroid
+            
+            new_centroids.append(new_centroid)
+
+        self.centroids = np.array(new_centroids)
 
     def fit(self, X):
         n_samples, n_features = X.shape
