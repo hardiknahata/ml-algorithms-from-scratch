@@ -55,7 +55,6 @@ class PCA:
         # Step 5: Sort the eigenvalues in descending order and reorder corresponding eigenvectors
         # Sorting helps select the top 'n_components' that explain the most variance
         idxs = np.argsort(eigenvalues)[::-1]  # Get indices of sorted eigenvalues in descending order
-        eigenvalues = eigenvalues[idxs]       # Sort eigenvalues
         eigenvectors = eigenvectors[idxs]     # Sort eigenvectors accordingly
 
         # Step 6: Select the top 'n_components' eigenvectors (principal components)
