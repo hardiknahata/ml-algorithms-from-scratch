@@ -26,29 +26,31 @@ class SVM:
         """
         n_samples, n_features = X.shape  # Number of samples and features
 
-        # Initialize weights and bias to zero
+        # 1] Initialize weights and bias to zero
         self.w = np.zeros(n_features)
         self.b = 0
 
-        # Convert labels to +1 or -1 for hinge loss calculations
+        # 2] Convert labels to +1 or -1 for hinge loss calculations
         y_ = np.where(y <= 0, -1, 1)
 
-        # Perform gradient descent optimization for n_iters iterations
+        # 3] Perform gradient descent optimization for n_iters iterations
         for _ in range(self.n_iters):
-            # Compute the margin for all samples in parallel
+            # Margin: y_i * (w · x_i + b)
             margins = y_ * (np.dot(X, self.w) + self.b)
 
             # Identify misclassified samples (margin < 1)
+            # A sample is misclassified if: y_i * (w · x_i + b) < 1
             misclassified = margins < 1  # Boolean mask for misclassified samples
 
-            # Gradient computation (vectorized)
+            # dw = λ * w - Σ (y_i * x_i) for all misclassified samples
             dw = self.lambda_param * self.w - np.dot(X.T, y_ * misclassified)
+            
+            # db = -Σ y_i for all misclassified samples
             db = -np.sum(y_ * misclassified)
 
             # Update weights and bias
             self.w -= self.learning_rate * dw
             self.b -= self.learning_rate * db
-
 
     def predict(self, X):
         """

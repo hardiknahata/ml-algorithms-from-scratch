@@ -10,10 +10,14 @@ class SVM:
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
+        # 1] Initialize weights and bias to zero
         self.w = np.zeros(n_features)
         self.b = 0
+
+        # 2] Convert labels to +1 or -1 for hinge loss calculations
         y_ = np.where(y <= 0, -1, 1)
 
+        # 3] Perform gradient descent optimization for n_iters iterations
         for _ in range(self.n_iters):
             margins = y_ * (np.dot(X, self.w) + self.b)
             misclassified = margins < 1
