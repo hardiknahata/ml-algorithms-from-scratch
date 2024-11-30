@@ -23,9 +23,9 @@ To follow along, you’ll need:
    cd ml-algorithms-from-scratch
    ```
 
-2. Run any algorithm:
+2. Run any algorithm, example:
    ```bash
-   python linear_regression.py
+   python linear_regression/train.py
    ```
 
 ## 📝 Documentation
