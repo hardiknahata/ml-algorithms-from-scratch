@@ -3,25 +3,12 @@ from collections import defaultdict
 
 class NaiveBayes:
     def __init__(self, alpha=1.0):
-        """
-        Initialize the Generic Naive Bayes classifier.
-        
-        Parameters:
-            alpha (float): Laplace smoothing parameter to handle zero probabilities.
-        """
         self.alpha = alpha  # Laplace smoothing parameter
         self.class_priors = {}  # Prior probabilities: P(y)
         self.conditional_probs = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))  
         # Format: {class: {feature_index: {feature_value: P(feature_value | class)}}}
 
     def fit(self, X, y):
-        """
-        Train the Naive Bayes classifier.
-        
-        Parameters:
-            X (list of lists): Training dataset where each sample is a list of categorical features.
-            y (list): Target labels corresponding to each sample in X.
-        """
         total_samples = len(y)
         unique_classes = np.unique(y)
 
@@ -51,15 +38,6 @@ class NaiveBayes:
                     ) / (total_class_samples + self.alpha * vocab_size)
 
     def predict(self, X):
-        """
-        Predict the class labels for a given dataset.
-        
-        Parameters:
-            X (list of lists): Dataset for which to predict class labels, where each sample is a list of features.
-        
-        Returns:
-            List of predicted class labels.
-        """
         predictions = []
 
         for sample in X:
